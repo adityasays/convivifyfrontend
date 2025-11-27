@@ -4,6 +4,7 @@ import styled from "styled-components";
 import Preloader from '../home/comp/preloader';
 import HeroSection from '../home/comp/herosection';
 import ScrollPathSection from '../home/comp/scrollpathsection';
+import FocusSection from '../home/comp/focussection';
 
 export default function Home({ setShowApp }) {
   const [showHome, setShowHome] = useState(false);
@@ -25,6 +26,7 @@ export default function Home({ setShowApp }) {
         
         {/* SECTION 3: Scroll Path Animation Section */}
         <ScrollPathSection />
+        <FocusSection />
         
         {/* SECTION 4: Additional Content - Add your sections below */}
         <NextSectionPlaceholder>
