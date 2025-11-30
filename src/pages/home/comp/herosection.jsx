@@ -11,7 +11,7 @@ export default function HeroSection({ show }) {
     if (show) {
       // Wait for preloader to finish, then start text animation
       setTimeout(() => setStartAnimation(true), 800);
-      // Delay button appearance until after text animation
+      // Delay button appearance until  after text animation
       setTimeout(() => setButtonVisible(true), 3500);
     }
   }, [show]);
@@ -34,7 +34,7 @@ export default function HeroSection({ show }) {
           <>
             <TitleWrapper>
               <BlurText
-                text="Your mind deserves care"
+                text="Your Mind Deserves Care"
                 delay={120}
                 animateBy="words"
                 direction="top"
@@ -45,7 +45,7 @@ export default function HeroSection({ show }) {
             
             <SubtitleWrapper>
               <BlurText
-                text="Compassionate support for your mental wellness journey"
+                text="We Bring the support that protects your privacy."
                 delay={80}
                 animateBy="words"
                 direction="top"

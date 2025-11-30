@@ -1,287 +1,423 @@
-import React, { useState } from "react";
-import styled from "styled-components";
+import React, { useLayoutEffect, useRef, useState } from 'react';
+import { gsap } from 'gsap';
 
-function NavBar() {
-  const [activeLink, setActiveLink] = useState("home");
+const NavBar = () => {
+  const [isHamburgerOpen, setIsHamburgerOpen] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(false);
+  const navRef = useRef(null);
+  const cardsRef = useRef([]);
+  const tlRef = useRef(null);
+
+  const items = [
+    {
+      label: "Services",
+      bgColor: "#A991D4",
+      textColor: "#fff",
+      links: [
+        { label: "About", href: "/about", ariaLabel: "About us" },
+        { label: "Consult", href: "/consult", ariaLabel: "Consultation" },
+        { label: "Assessment", href: "/assessment", ariaLabel: "Assessment" }
+      ]
+    },
+    {
+      label: "Support",
+      bgColor: "#88C9B9",
+      textColor: "#fff",
+      links: [
+        { label: "Chatbot", href: "/chatbot", ariaLabel: "AI Chatbot" },
+        { label: "Contact", href: "/contact", ariaLabel: "Contact us" }
+      ]
+    },
+    {
+      label: "Get Started",
+      bgColor: "#9780c4",
+      textColor: "#fff",
+      links: [
+        { label: "Book Now", href: "/book", ariaLabel: "Book appointment" }
+      ]
+    }
+  ];
+
+  const calculateHeight = () => {
+    const navEl = navRef.current;
+    if (!navEl) return 260;
+
+    const isMobile = window.matchMedia('(max-width: 768px)').matches;
+    if (isMobile) {
+      const contentEl = navEl.querySelector('.card-nav-content');
+      if (contentEl) {
+        const wasVisible = contentEl.style.visibility;
+        const wasPointerEvents = contentEl.style.pointerEvents;
+        const wasPosition = contentEl.style.position;
+        const wasHeight = contentEl.style.height;
+
+        contentEl.style.visibility = 'visible';
+        contentEl.style.pointerEvents = 'auto';
+        contentEl.style.position = 'static';
+        contentEl.style.height = 'auto';
+
+        contentEl.offsetHeight;
+
+        const topBar = 60;
+        const padding = 16;
+        const contentHeight = contentEl.scrollHeight;
+
+        contentEl.style.visibility = wasVisible;
+        contentEl.style.pointerEvents = wasPointerEvents;
+        contentEl.style.position = wasPosition;
+        contentEl.style.height = wasHeight;
+
+        return topBar + contentHeight + padding;
+      }
+    }
+    return 260;
+  };
+
+  const createTimeline = () => {
+    const navEl = navRef.current;
+    if (!navEl) return null;
+
+    gsap.set(navEl, { height: 60, overflow: 'hidden' });
+    gsap.set(cardsRef.current, { y: 50, opacity: 0 });
+
+    const tl = gsap.timeline({ paused: true });
+
+    tl.to(navEl, {
+      height: calculateHeight,
+      duration: 0.4,
+      ease: 'power3.out'
+    });
+
+    tl.to(cardsRef.current, { y: 0, opacity: 1, duration: 0.4, ease: 'power3.out', stagger: 0.08 }, '-=0.1');
+
+    return tl;
+  };
+
+  useLayoutEffect(() => {
+    const tl = createTimeline();
+    tlRef.current = tl;
+
+    return () => {
+      tl?.kill();
+      tlRef.current = null;
+    };
+  }, []);
+
+  useLayoutEffect(() => {
+    const handleResize = () => {
+      if (!tlRef.current) return;
+
+      if (isExpanded) {
+        const newHeight = calculateHeight();
+        gsap.set(navRef.current, { height: newHeight });
+
+        tlRef.current.kill();
+        const newTl = createTimeline();
+        if (newTl) {
+          newTl.progress(1);
+          tlRef.current = newTl;
+        }
+      } else {
+        tlRef.current.kill();
+        const newTl = createTimeline();
+        if (newTl) {
+          tlRef.current = newTl;
+        }
+      }
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, [isExpanded]);
+
+  const toggleMenu = () => {
+    const tl = tlRef.current;
+    if (!tl) return;
+    if (!isExpanded) {
+      setIsHamburgerOpen(true);
+      setIsExpanded(true);
+      tl.play(0);
+    } else {
+      setIsHamburgerOpen(false);
+      tl.eventCallback('onReverseComplete', () => setIsExpanded(false));
+      tl.reverse();
+    }
+  };
+
+  const setCardRef = i => el => {
+    if (el) cardsRef.current[i] = el;
+  };
 
   return (
-    <NavContainer>
-      <NavWrapper>
-        <Logo onClick={() => setActiveLink("home")}>
-          Convivify
-        </Logo>
+    <>
+      <style>{`
+        .card-nav-container {
+          position: fixed;
+          top: 2em;
+          left: 50%;
+          transform: translateX(-50%);
+          width: 90%;
+          max-width: 900px;
+          z-index: 99;
+          box-sizing: border-box;
+        }
+        .card-nav {
+          display: block;
+          height: 60px;
+          padding: 0;
+          background-color: rgba(255, 255, 255, 0.75);
+          backdrop-filter: blur(24px) saturate(180%);
+          -webkit-backdrop-filter: blur(24px) saturate(180%);
+          border: 1.5px solid rgba(255, 255, 255, 0.40);
+          border-radius: 0.75rem;
+          box-shadow: 0 8px 32px rgba(169, 145, 212, 0.15), 0 4px 16px rgba(136, 201, 185, 0.10), inset 0 1px 2px rgba(255, 255, 255, 0.95);
+          position: relative;
+          overflow: hidden;
+          will-change: height;
+        }
+        .card-nav-top {
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          height: 60px;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          padding: 0.5rem 0.45rem 0.55rem 1.1rem;
+          z-index: 2;
+        }
+        .hamburger-menu {
+          height: 100%;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;  
+          gap: 6px;
+          margin-bottom: 10px;
+        }
+        .hamburger-menu:hover .hamburger-line {
+          opacity: 0.75;
+          
+        }
+        .hamburger-line {
+          width: 30px;
+          height: 2px;
+          
+          background-color: currentColor;
+          transition: transform 0.25s ease, opacity 0.2s ease, margin 0.3s ease;
+          transform-origin: 50% 50%;
+        }
+        .hamburger-menu.open .hamburger-line:first-child {
+          transform: translateY(4px) rotate(45deg);
+        }
+        .hamburger-menu.open .hamburger-line:last-child {
+          transform: translateY(-4px) rotate(-45deg);
+        }
+        .logo-container {
+          display: flex;
+          align-items: center;
+          position: absolute;
+          left: 50%;
+          top: 40%;
+          transform: translate(-50%, -50%);
+        }
+        .logo {
+          font-size: 30px;
+          font-weight: 700;
+          background: linear-gradient(135deg, #A991D4 0%, #88C9B9 100%);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          background-clip: text;
+          letter-spacing: -0.5px;
+          font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+        .card-nav-cta-button {
+          background-color: #A991D4;
+          color: white  ;
+          border: none;
+          
+         margin-bottom: 15px;
+          border-radius: calc(0.95rem - 0.35rem);
+          padding: 1rem  1rem;
+          height: 70%;
+          font-weight: 600;
+          font-size: 14px;
+          cursor: pointer;
+          transition: background-color 0.3s ease;
+          align-items: center;
+          font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+          letter-spacing: -0.2px;
+          box-shadow: 0 2px 8px rgba(169, 145, 212, 0.3);
         
-        <NavLinks>
-          <NavLink
-            $active={activeLink === "home"}
-            onClick={() => setActiveLink("home")}
-          >
-            Home
-          </NavLink>
-          <NavLink
-            $active={activeLink === "about"}
-            onClick={() => setActiveLink("about")}
-          >
-            About
-          </NavLink>
-          <NavLink
-            $active={activeLink === "consult"}
-            onClick={() => setActiveLink("consult")}
-          >
-            Consult
-          </NavLink>
-          <NavLink
-            $active={activeLink === "contact"}
-            onClick={() => setActiveLink("contact")}
-          >
-            Contact
-          </NavLink>
-          <NavLink
-            $active={activeLink === "assessment"}
-            onClick={() => setActiveLink("assessment")}
-          >
-            Assessment
-          </NavLink>
-        </NavLinks>
+        }
+        .card-nav-cta-button:hover {
+          background-color: #9780c4;
+        }
+        .card-nav-content {
+          position: absolute;
+          left: 0;
+          right: 0;
+          top: 100px;
+          bottom: 0;
+          padding: 0.5rem;
+          display: flex;
+          align-items: flex-end;
+          gap: 12px;
+          visibility: hidden;
+          pointer-events: none;
+          z-index: 1;
+        }
+        .card-nav.open .card-nav-content {
+          visibility: visible;
+          pointer-events: auto;
+        }
+        .nav-card {
+          height: 100%;
+          flex: 1 1 0;
+          min-width: 0;
+          border-radius: calc(0.75rem - 0.2rem);
+          position: relative;
+          display: flex;
+          flex-direction: column;
+          padding: 12px 16px;
+          gap: 8px;
+          user-select: none;
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        .nav-card-label {
+          font-weight: 400;
+          font-size: 22px;
+          letter-spacing: -0.5px;
+          font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+        .nav-card-links {
+          margin-top: auto;
+          display: flex;
+          flex-direction: column;
+          gap: 2px;
+        }
+        .nav-card-link {
+          font-size: 16px;
+          cursor: pointer;
+          text-decoration: none;
+          transition: opacity 0.3s ease;
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+          color: inherit;
+          font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+        .nav-card-link:hover {
+          opacity: 0.75;
+        }
+        .nav-card-link-icon {
+          width: 16px;
+          height: 16px;
+        }
+        @media (max-width: 768px) {
+          .card-nav-container {
+            width: 90%;
+            top: 1.2em;
+          }
+          .card-nav-top {
+            padding: 0.5rem 1rem;
+            justify-content: space-between;
+          }
+          .hamburger-menu {
+            order: 2;
+          }
+          .logo-container {
+            position: static;
+            transform: none;
+            order: 1;
+          }
+          .card-nav-cta-button {
+            display: none;
+          }
+          .card-nav-content {
+            flex-direction: column;
+            align-items: stretch;
+            gap: 8px;
+            padding: 0.5rem;
+            bottom: 0;
+            justify-content: flex-start;
+          }
+          .nav-card {
+            height: auto;
+            min-height: 60px;
+            flex: 1 1 auto;
+            max-height: none;
+          }
+          .nav-card-label {
+            font-size: 18px;
+          }
+          .nav-card-link {
+            font-size: 15px;
+          }
+        }
+      `}</style>
+      
+      <div className="card-nav-container">
+        <nav ref={navRef} className={`card-nav ${isExpanded ? 'open' : ''}`}>
+          <div className="card-nav-top">
+            <div
+              className={`hamburger-menu ${isHamburgerOpen ? 'open' : ''}`}
+              onClick={toggleMenu}
+              role="button"
+              aria-label={isExpanded ? 'Close menu' : 'Open menu'}
+              tabIndex={0}
+              style={{ color: '#5A5A5A' }}
+            >
+              <div className="hamburger-line" />
+              <div className="hamburger-line" />
+            </div>
 
-        <CTAButton>Book Now</CTAButton>
-      </NavWrapper>
-    </NavContainer>
+            <div className="logo-container">
+              <div className="logo">Convivify</div>
+            </div>
+
+            <button
+              type="button"
+              className="card-nav-cta-button"
+              onClick={() => window.location.href = '/book'}
+            >
+              Book Now
+            </button>
+          </div>
+
+          <div className="card-nav-content" aria-hidden={!isExpanded}>
+            {items.map((item, idx) => (
+              <div
+                key={`${item.label}-${idx}`}
+                className="nav-card"
+                ref={setCardRef(idx)}
+                style={{ backgroundColor: item.bgColor, color: item.textColor }}
+              >
+                <div className="nav-card-label">{item.label}</div>
+                <div className="nav-card-links">
+                  {item.links?.map((lnk, i) => (
+                    <a 
+                      key={`${lnk.label}-${i}`} 
+                      className="nav-card-link" 
+                      href={lnk.href} 
+                      aria-label={lnk.ariaLabel}
+                    >
+                      <svg className="nav-card-link-icon" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M3.5 12.5L12.5 3.5M12.5 3.5H5.5M12.5 3.5V10.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                      {lnk.label}
+                    </a>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        </nav>
+      </div>
+    </>
   );
-}
+};
 
 export default NavBar;
-
-const NavContainer = styled.nav`
-  position: fixed;
-  top: 25px;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 1000;
-  width: 85%;
-  max-width: 950px;
-  display: flex;
-  justify-content: center;
-  
-  @media (max-width: 1024px) {
-    width: 92%;
-    max-width: 850px;
-  }
-  
-  @media (max-width: 768px) {
-    top: 12px;
-    width: 95%;
-  }
-`;
-
-const NavWrapper = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 10px 28px;
-  background: rgba(252, 252, 252, 0.50);
-  backdrop-filter: blur(16px) saturate(180%);
-  -webkit-backdrop-filter: blur(22px) saturate(180%);
-  border-radius: 40px;
-  border: 1px solid rgba(169, 145, 212, 0.18);
-  box-shadow: 0 4px 24px rgba(169, 145, 212, 0.12),
-              0 2px 8px rgba(136, 201, 185, 0.08),
-              inset 0 1px 0 rgba(255, 255, 255, 0.9);
-  width: 100%;
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-
-  &:hover {
-    box-shadow: 0 6px 32px rgba(169, 145, 212, 0.18),
-                0 4px 12px rgba(136, 201, 185, 0.12),
-                inset 0 1px 0 rgba(255, 255, 255, 1);
-    border-color: rgba(169, 145, 212, 0.25);
-    background: rgba(252, 252, 252, 0.75);
-  }
-
-  @media (max-width: 768px) {
-    padding: 9px 18px;
-    border-radius: 28px;
-  }
-`;
-
-const Logo = styled.div`
-  font-size: 20px;
-  font-weight: 600;
-  color: #A991D4;
-  letter-spacing: -0.3px;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  position: relative;
-  cursor: pointer;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-
-  &::after {
-    content: '';
-    position: absolute;
-    bottom: -2px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 0;
-    height: 2px;
-    background: linear-gradient(90deg, #88C9B9, #A991D4);
-    transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    border-radius: 2px;
-  }
-
-  &:hover::after {
-    width: 100%;
-  }
-
-  &:hover {
-    transform: translateY(-1px);
-    color: #9780c4;
-    filter: drop-shadow(0 0 12px rgba(169, 145, 212, 0.35));
-  }
-
-  @media (max-width: 768px) {
-    font-size: 17px;
-  }
-`;
-
-const NavLinks = styled.div`
-  display: flex;
-  gap: 4px;
-  align-items: center;
-
-  @media (max-width: 768px) {
-    gap: 2px;
-  }
-`;
-
-const NavLink = styled.div`
-  padding: 7px 16px;
-  font-size: 14px;
-  font-weight: 500;
-  color: ${props => props.$active ? '#A991D4' : '#4A4A4A'};
-  border-radius: 20px;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  position: relative;
-  cursor: pointer;
-  letter-spacing: -0.2px;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-  background: ${props => props.$active 
-    ? 'linear-gradient(135deg, rgba(169, 145, 212, 0.12), rgba(136, 201, 185, 0.08))' 
-    : 'transparent'};
-
-  &::before {
-    content: '';
-    position: absolute;
-    inset: -1px;
-    border-radius: 20px;
-    padding: 1px;
-    background: ${props => props.$active 
-      ? 'linear-gradient(135deg, rgba(169, 145, 212, 0.5), rgba(136, 201, 185, 0.4))' 
-      : 'linear-gradient(135deg, rgba(169, 145, 212, 0), rgba(136, 201, 185, 0))'};
-    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-    -webkit-mask-composite: xor;
-    mask-composite: exclude;
-    opacity: ${props => props.$active ? 1 : 0};
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  }
-
-  &::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    border-radius: 20px;
-    background: radial-gradient(circle at center, rgba(169, 145, 212, 0.15), transparent 70%);
-    opacity: 0;
-    transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  }
-
-  &:hover {
-    color: #A991D4;
-    background: linear-gradient(135deg, rgba(169, 145, 212, 0.1), rgba(136, 201, 185, 0.06));
-    transform: translateY(-1px);
-    box-shadow: 0 3px 10px rgba(169, 145, 212, 0.15);
-  }
-
-  &:hover::before {
-    opacity: 1;
-  }
-
-  &:hover::after {
-    opacity: 1;
-  }
-
-  @media (max-width: 1024px) {
-    padding: 6px 13px;
-    font-size: 13px;
-  }
-
-  @media (max-width: 768px) {
-    padding: 6px 10px;
-    font-size: 12px;
-  }
-`;
-
-const CTAButton = styled.button`
-  padding: 8px 22px;
-  font-size: 14px;
-  font-weight: 600;
-  color: #FCFCFC;
-  background: linear-gradient(135deg, #A991D4 0%, #9780c4 100%);
-  border: none;
-  border-radius: 20px;
-  cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 3px 12px rgba(169, 145, 212, 0.25),
-              inset 0 1px 0 rgba(255, 255, 255, 0.2);
-  position: relative;
-  overflow: hidden;
-  letter-spacing: -0.1px;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-
-  &::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, 
-      transparent, 
-      rgba(255, 255, 255, 0.25) 50%, 
-      transparent);
-    transition: left 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-  }
-
-  &::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    border-radius: 20px;
-    background: linear-gradient(135deg, rgba(136, 201, 185, 0.3), rgba(169, 145, 212, 0.3));
-    opacity: 0;
-    transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  }
-
-  &:hover::before {
-    left: 100%;
-  }
-
-  &:hover::after {
-    opacity: 1;
-  }
-
-  &:hover {
-    transform: translateY(-2px) scale(1.02);
-    box-shadow: 0 6px 20px rgba(169, 145, 212, 0.35),
-                0 3px 10px rgba(136, 201, 185, 0.2),
-                inset 0 1px 0 rgba(255, 255, 255, 0.3);
-    background: linear-gradient(135deg, #9780c4 0%, #A991D4 100%);
-  }
-
-  &:active {
-    transform: translateY(0) scale(0.98);
-  }
-
-  @media (max-width: 768px) {
-    padding: 7px 18px;
-    font-size: 13px;
-  }
-`;

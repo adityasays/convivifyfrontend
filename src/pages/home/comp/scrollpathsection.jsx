@@ -59,7 +59,7 @@ export default function ScrollPathSection() {
 
 // SVG Path Component
 function LinePath({ scrollYProgress }) {
-  const pathLength = useTransform(scrollYProgress, [0, 1], [0.5, 1]);
+  const pathLength = useTransform(scrollYProgress, [0, 0.70], [0.5, 1]);
 
   return (
     <SvgWrapper>
@@ -86,13 +86,13 @@ function LinePath({ scrollYProgress }) {
 
 // Styled Components
 const SectionContainer = styled.section`
-  min-height: 350vh;
+  min-height: 270vh;
   width: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
   overflow: hidden;
-  background-color: #F5F2FA;
+  
   padding: 0 5px;
   color: #2D2D2D;
 `;
@@ -166,11 +166,12 @@ const SvgWrapper = styled.div`
 
 const BottomCard = styled.div`
   width: 90%;
-  transform: translateY(200vh);
+  transform: translateY(125vh);
   background-color: #A991D4;
   border-radius: 40px;
   padding: 40px 20px;
   color: #F5F2FA;
+  z-index: 2;
 `;
 
 const CardTitle = styled.h1`
@@ -185,21 +186,24 @@ const CardTitle = styled.h1`
     font-size: 12vw;
   }
 `;
-
 const CardDetails = styled.div`
   display: flex;
-  width: 100%;
+  width: 90%;
+  max-width: 1200px;
   flex-direction: column;
-  align-items: flex-start;
-  gap: 40px;
-  padding: 0 20px;
+  align-items: center;
+  gap: 2rem;
+  padding: 0 1.5rem;
   font-weight: 500;
-  margin-top: 80px;
+  margin-top: 5rem;
+  transition: all 0.3s ease;
   
   @media (min-width: 1024px) {
     flex-direction: row;
     justify-content: space-between;
+    gap: 3rem;
     margin-top: 0;
+    padding: 0 2rem;
   }
 `;
 
@@ -208,12 +212,28 @@ const DetailGroup = styled.div`
   width: 100%;
   align-items: center;
   justify-content: space-between;
-  gap: 48px;
+  gap: 1rem;
+  
   text-transform: uppercase;
+  font-size: 0.875rem;
+  letter-spacing: 0.05em;
+  
+  
+  transition: all 0.2s ease;
+  
+  
+ 
   
   @media (min-width: 1024px) {
     width: fit-content;
+    min-width: 200px;
     justify-content: center;
+    border-bottom: none;
+    padding: 0.75rem 1.25rem;
+    border-radius: 8px;
+    background: rgba(0, 0, 0, 0.02);
+    
+    
   }
 `;
 

@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useCallback, useMemo } from 'react';
+import React, { useEffect, useRef, useCallback, useMemo , useState} from 'react';
 import { gsap } from 'gsap';
 
 // TargetCursor Component
@@ -392,8 +392,23 @@ const TargetCursor = ({
 
 // Main Focus Section Component
 export default function FocusSection() {
+  const sectionRef = useRef(null);
+const [isSectionVisible, setIsSectionVisible] = useState(false);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => setIsSectionVisible(entry.isIntersecting),
+      { threshold: 0.15 } // cursor appears when 15% of the section is visible
+    );
+
+    if (sectionRef.current) {
+      observer.observe(sectionRef.current);
+    }
+
+    return () => observer.disconnect();
+  }, []);
   return (
-    <div style={{
+    <div ref={sectionRef} style={{
       minHeight: '100vh',
       background: 'linear-gradient(180deg, #ffffff 0%, #E8E3F3 100%)',
       padding: '120px 20px',
@@ -402,148 +417,398 @@ export default function FocusSection() {
       alignItems: 'center',
       justifyContent: 'center'
     }}>
-      <TargetCursor 
-        spinDuration={2.5}
-        hideDefaultCursor={true}
-        parallaxOn={true}
-      />
+      {isSectionVisible && (
+        <TargetCursor 
+          targetSelector=".focus-cursor-target"
+          spinDuration={2.5}
+          hideDefaultCursor={false}
+          parallaxOn={true}
+        />
+      )}
       
       <div style={{
-        maxWidth: '1200px',
-        margin: '0 auto',
-        textAlign: 'center'
+        maxWidth: '1400px',
+        width: '100%',
+        margin: '0 auto'
       }}>
-        <h2 style={{
-          fontSize: 'clamp(2.5rem, 5vw, 4rem)',
-          fontWeight: '700',
-          color: '#2D1B4E',
-          marginBottom: '24px',
-          letterSpacing: '-0.02em'
+        <div style={{
+          textAlign: 'center',
+          marginBottom: '80px'
         }}>
-          Find Your <span className="cursor-target" style={{
-            color: '#7C3AED',
-            cursor: 'pointer',
-            padding: '0 8px',
-            transition: 'color 0.3s ease'
-          }}>Focus</span>
-        </h2>
-        
-        <p style={{
-          fontSize: 'clamp(1.1rem, 2vw, 1.4rem)',
-          color: '#5B4A6F',
-          maxWidth: '800px',
-          margin: '0 auto 48px',
-          lineHeight: '1.7'
-        }}>
-          Your mind deserves clarity. We help you cut through the noise, center your thoughts, and discover the mental peace you've been searching for.
-        </p>
+          <div style={{
+            display: 'inline-block',
+            padding: '8px 24px',
+            background: 'rgba(124, 58, 237, 0.1)',
+            borderRadius: '50px',
+            marginBottom: '24px',
+            border: '1px solid rgba(124, 58, 237, 0.2)'
+          }}>
+            <span style={{
+              color: '#7C3AED',
+              fontSize: '0.9rem',
+              fontWeight: '600',
+              letterSpacing: '0.05em',
+              textTransform: 'uppercase'
+            }}>How We Help You</span>
+          </div>
+
+          <h2 style={{
+            fontSize: 'clamp(2.5rem, 5vw, 4.5rem)',
+            fontWeight: '800',
+            color: '#2D1B4E',
+            marginBottom: '24px',
+            letterSpacing: '-0.03em',
+            lineHeight: '1.1'
+          }}>
+            Find Your <span className="focus-cursor-target" style={{
+              background: 'linear-gradient(135deg, #7C3AED 0%, #EC4899 100%)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              backgroundClip: 'text',
+              cursor: 'pointer',
+              position: 'relative',
+              display: 'inline-block'
+            }}>Focus</span>
+          </h2>
+          
+          <p style={{
+            fontSize: 'clamp(1.1rem, 2vw, 1.3rem)',
+            color: '#5B4A6F',
+            maxWidth: '700px',
+            margin: '0 auto',
+            lineHeight: '1.8',
+            fontWeight: '400'
+          }}>
+            Your mind deserves clarity. We provide a safe, anonymous space designed specifically for teens to discover mental peace and build lasting focus.
+          </p>
+        </div>
 
         <div style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
           gap: '32px',
-          marginTop: '64px'
+          marginTop: '64px',
+          padding: '0 20px'
         }}>
-          <div className="cursor-target" style={{
-            background: 'rgba(255, 255, 255, 0.6)',
-            backdropFilter: 'blur(10px)',
-            borderRadius: '20px',
-            padding: '40px 32px',
-            border: '1px solid rgba(124, 58, 237, 0.1)',
-            transition: 'transform 0.3s ease, box-shadow 0.3s ease',
-            cursor: 'pointer'
+          {/* Card 1 */}
+          <div className="focus-cursor-target" style={{
+            background: 'linear-gradient(135deg, rgba(168, 85, 247, 0.95) 0%, rgba(124, 58, 237, 0.95) 100%)',
+            borderRadius: '24px',
+            padding: '48px 36px',
+            position: 'relative',
+            overflow: 'hidden',
+            cursor: 'pointer',
+            transition: 'transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)',
+            boxShadow: '0 20px 60px rgba(124, 58, 237, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.1) inset',
+            border: '1px solid rgba(255, 255, 255, 0.2)'
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.transform = 'translateY(-12px) scale(1.02)';
+            e.currentTarget.style.boxShadow = '0 30px 80px rgba(124, 58, 237, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.2) inset';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.transform = 'translateY(0) scale(1)';
+            e.currentTarget.style.boxShadow = '0 20px 60px rgba(124, 58, 237, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.1) inset';
           }}>
             <div style={{
-              fontSize: '2.5rem',
-              marginBottom: '16px'
+              position: 'absolute',
+              top: '-50%',
+              right: '-50%',
+              width: '200%',
+              height: '200%',
+              background: 'radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%)',
+              pointerEvents: 'none'
+            }} />
+            
+            <div style={{
+              fontSize: '3.5rem',
+              marginBottom: '24px',
+              filter: 'drop-shadow(0 4px 12px rgba(0,0,0,0.2))'
             }}>🎯</div>
+            
             <h3 style={{
-              fontSize: '1.5rem',
-              fontWeight: '600',
-              color: '#2D1B4E',
-              marginBottom: '12px'
+              fontSize: '1.75rem',
+              fontWeight: '700',
+              color: '#fff',
+              marginBottom: '16px',
+              letterSpacing: '-0.01em'
             }}>Targeted Support</h3>
+            
             <p style={{
-              color: '#6B5B7B',
-              lineHeight: '1.6',
-              fontSize: '1rem'
+              color: 'rgba(255, 255, 255, 0.9)',
+              lineHeight: '1.7',
+              fontSize: '1.05rem',
+              fontWeight: '400'
             }}>
-              Personalized strategies that address your unique mental health journey with precision and care.
+              Personalized mental health strategies tailored to your unique journey. Get the precise support you need, when you need it.
             </p>
+
+            <div style={{
+              marginTop: '24px',
+              padding: '12px 24px',
+              background: 'rgba(255, 255, 255, 0.15)',
+              backdropFilter: 'blur(10px)',
+              borderRadius: '12px',
+              border: '1px solid rgba(255, 255, 255, 0.2)',
+              display: 'inline-block'
+            }}>
+              <span style={{
+                color: '#fff',
+                fontSize: '0.9rem',
+                fontWeight: '600'
+              }}>Learn More →</span>
+            </div>
           </div>
 
-          <div className="cursor-target" style={{
-            background: 'rgba(255, 255, 255, 0.6)',
-            backdropFilter: 'blur(10px)',
-            borderRadius: '20px',
-            padding: '40px 32px',
-            border: '1px solid rgba(124, 58, 237, 0.1)',
-            transition: 'transform 0.3s ease, box-shadow 0.3s ease',
-            cursor: 'pointer'
+          {/* Card 2 */}
+          <div className="focus-cursor-target" style={{
+            background: 'linear-gradient(135deg, rgba(236, 72, 153, 0.95) 0%, rgba(219, 39, 119, 0.95) 100%)',
+            borderRadius: '24px',
+            padding: '48px 36px',
+            position: 'relative',
+            overflow: 'hidden',
+            cursor: 'pointer',
+            transition: 'transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)',
+            boxShadow: '0 20px 60px rgba(236, 72, 153, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.1) inset',
+            border: '1px solid rgba(255, 255, 255, 0.2)'
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.transform = 'translateY(-12px) scale(1.02)';
+            e.currentTarget.style.boxShadow = '0 30px 80px rgba(236, 72, 153, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.2) inset';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.transform = 'translateY(0) scale(1)';
+            e.currentTarget.style.boxShadow = '0 20px 60px rgba(236, 72, 153, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.1) inset';
           }}>
             <div style={{
-              fontSize: '2.5rem',
-              marginBottom: '16px'
-            }}>🧘</div>
+              position: 'absolute',
+              top: '-50%',
+              right: '-50%',
+              width: '200%',
+              height: '200%',
+              background: 'radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%)',
+              pointerEvents: 'none'
+            }} />
+            
+            <div style={{
+              fontSize: '3.5rem',
+              marginBottom: '24px',
+              filter: 'drop-shadow(0 4px 12px rgba(0,0,0,0.2))'
+            }}>📋</div>
+            
             <h3 style={{
-              fontSize: '1.5rem',
-              fontWeight: '600',
-              color: '#2D1B4E',
-              marginBottom: '12px'
-            }}>Mindful Clarity</h3>
+              fontSize: '1.75rem',
+              fontWeight: '700',
+              color: '#fff',
+              marginBottom: '16px',
+              letterSpacing: '-0.01em'
+            }}>Health Assessments</h3>
+            
             <p style={{
-              color: '#6B5B7B',
-              lineHeight: '1.6',
-              fontSize: '1rem'
+              color: 'rgba(255, 255, 255, 0.9)',
+              lineHeight: '1.7',
+              fontSize: '1.05rem',
+              fontWeight: '400'
             }}>
-              Learn to quiet the mental chatter and develop lasting focus through evidence-based mindfulness techniques.
+              Interactive quizzes designed to help you understand your mental health better. Get insights that matter, completely free.
             </p>
+
+            <div style={{
+              marginTop: '24px',
+              padding: '12px 24px',
+              background: 'rgba(255, 255, 255, 0.15)',
+              backdropFilter: 'blur(10px)',
+              borderRadius: '12px',
+              border: '1px solid rgba(255, 255, 255, 0.2)',
+              display: 'inline-block'
+            }}>
+              <span style={{
+                color: '#fff',
+                fontSize: '0.9rem',
+                fontWeight: '600'
+              }}>Take Quiz →</span>
+            </div>
           </div>
 
-          <div className="cursor-target" style={{
-            background: 'rgba(255, 255, 255, 0.6)',
-            backdropFilter: 'blur(10px)',
-            borderRadius: '20px',
-            padding: '40px 32px',
-            border: '1px solid rgba(124, 58, 237, 0.1)',
-            transition: 'transform 0.3s ease, box-shadow 0.3s ease',
-            cursor: 'pointer'
+          {/* Card 3 */}
+          <div className="focus-cursor-target" style={{
+            background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.95) 0%, rgba(37, 99, 235, 0.95) 100%)',
+            borderRadius: '24px',
+            padding: '48px 36px',
+            position: 'relative',
+            overflow: 'hidden',
+            cursor: 'pointer',
+            transition: 'transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)',
+            boxShadow: '0 20px 60px rgba(59, 130, 246, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.1) inset',
+            border: '1px solid rgba(255, 255, 255, 0.2)'
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.transform = 'translateY(-12px) scale(1.02)';
+            e.currentTarget.style.boxShadow = '0 30px 80px rgba(59, 130, 246, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.2) inset';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.transform = 'translateY(0) scale(1)';
+            e.currentTarget.style.boxShadow = '0 20px 60px rgba(59, 130, 246, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.1) inset';
           }}>
             <div style={{
-              fontSize: '2.5rem',
-              marginBottom: '16px'
-            }}>✨</div>
+              position: 'absolute',
+              top: '-50%',
+              right: '-50%',
+              width: '200%',
+              height: '200%',
+              background: 'radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%)',
+              pointerEvents: 'none'
+            }} />
+            
+            <div style={{
+              fontSize: '3.5rem',
+              marginBottom: '24px',
+              filter: 'drop-shadow(0 4px 12px rgba(0,0,0,0.2))'
+            }}>🔒</div>
+            
             <h3 style={{
-              fontSize: '1.5rem',
-              fontWeight: '600',
-              color: '#2D1B4E',
-              marginBottom: '12px'
-            }}>Sustained Growth</h3>
+              fontSize: '1.75rem',
+              fontWeight: '700',
+              color: '#fff',
+              marginBottom: '16px',
+              letterSpacing: '-0.01em'
+            }}>100% Anonymous</h3>
+            
             <p style={{
-              color: '#6B5B7B',
-              lineHeight: '1.6',
-              fontSize: '1rem'
+              color: 'rgba(255, 255, 255, 0.9)',
+              lineHeight: '1.7',
+              fontSize: '1.05rem',
+              fontWeight: '400'
             }}>
-              Build mental resilience that lasts, with tools and support that grow with you over time.
+              Your privacy is sacred. Share your thoughts and feelings in a completely anonymous, judgment-free environment.
             </p>
+
+            <div style={{
+              marginTop: '24px',
+              padding: '12px 24px',
+              background: 'rgba(255, 255, 255, 0.15)',
+              backdropFilter: 'blur(10px)',
+              borderRadius: '12px',
+              border: '1px solid rgba(255, 255, 255, 0.2)',
+              display: 'inline-block'
+            }}>
+              <span style={{
+                color: '#fff',
+                fontSize: '0.9rem',
+                fontWeight: '600'
+              }}>Stay Safe →</span>
+            </div>
+          </div>
+
+          {/* Card 4 */}
+          <div className="focus-cursor-target" style={{
+            background: 'linear-gradient(135deg, rgba(245, 158, 11, 0.95) 0%, rgba(217, 119, 6, 0.95) 100%)',
+            borderRadius: '24px',
+            padding: '48px 36px',
+            position: 'relative',
+            overflow: 'hidden',
+            cursor: 'pointer',
+            transition: 'transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)',
+            boxShadow: '0 20px 60px rgba(245, 158, 11, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.1) inset',
+            border: '1px solid rgba(255, 255, 255, 0.2)'
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.transform = 'translateY(-12px) scale(1.02)';
+            e.currentTarget.style.boxShadow = '0 30px 80px rgba(245, 158, 11, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.2) inset';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.transform = 'translateY(0) scale(1)';
+            e.currentTarget.style.boxShadow = '0 20px 60px rgba(245, 158, 11, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.1) inset';
+          }}>
+            <div style={{
+              position: 'absolute',
+              top: '-50%',
+              right: '-50%',
+              width: '200%',
+              height: '200%',
+              background: 'radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%)',
+              pointerEvents: 'none'
+            }} />
+            
+            <div style={{
+              fontSize: '3.5rem',
+              marginBottom: '24px',
+              filter: 'drop-shadow(0 4px 12px rgba(0,0,0,0.2))'
+            }}>🌟</div>
+            
+            <h3 style={{
+              fontSize: '1.75rem',
+              fontWeight: '700',
+              color: '#fff',
+              marginBottom: '16px',
+              letterSpacing: '-0.01em'
+            }}>Dedicated to Teens</h3>
+            
+            <p style={{
+              color: 'rgba(255, 255, 255, 0.9)',
+              lineHeight: '1.7',
+              fontSize: '1.05rem',
+              fontWeight: '400'
+            }}>
+              Built specifically for teenagers facing modern challenges. We understand you, your struggles, and your generation.
+            </p>
+
+            <div style={{
+              marginTop: '24px',
+              padding: '12px 24px',
+              background: 'rgba(255, 255, 255, 0.15)',
+              backdropFilter: 'blur(10px)',
+              borderRadius: '12px',
+              border: '1px solid rgba(255, 255, 255, 0.2)',
+              display: 'inline-block'
+            }}>
+              <span style={{
+                color: '#fff',
+                fontSize: '0.9rem',
+                fontWeight: '600'
+              }}>Join Us →</span>
+            </div>
           </div>
         </div>
 
-        <button className="cursor-target" style={{
-          marginTop: '64px',
-          padding: '18px 48px',
-          fontSize: '1.1rem',
-          fontWeight: '600',
-          color: '#fff',
-          background: 'linear-gradient(135deg, #7C3AED 0%, #A855F7 100%)',
-          border: 'none',
-          borderRadius: '50px',
-          cursor: 'pointer',
-          transition: 'transform 0.3s ease, box-shadow 0.3s ease',
-          boxShadow: '0 4px 20px rgba(124, 58, 237, 0.3)'
+        <div style={{
+          textAlign: 'center',
+          marginTop: '80px'
         }}>
-          Start Your Journey
-        </button>
+          <button className="focus-cursor-target" style={{
+            padding: '20px 56px',
+            fontSize: '1.15rem',
+            fontWeight: '700',
+            color: '#fff',
+            background: 'linear-gradient(135deg, #7C3AED 0%, #EC4899 100%)',
+            border: 'none',
+            borderRadius: '60px',
+            cursor: 'pointer',
+            transition: 'all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)',
+            boxShadow: '0 8px 32px rgba(124, 58, 237, 0.4)',
+            position: 'relative',
+            overflow: 'hidden'
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.transform = 'translateY(-4px) scale(1.05)';
+            e.currentTarget.style.boxShadow = '0 12px 48px rgba(124, 58, 237, 0.5)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.transform = 'translateY(0) scale(1)';
+            e.currentTarget.style.boxShadow = '0 8px 32px rgba(124, 58, 237, 0.4)';
+          }}>
+            <span style={{ position: 'relative', zIndex: 1 }}>Start Your Journey Today</span>
+          </button>
+          
+          <p style={{
+            marginTop: '20px',
+            color: '#7C3AED',
+            fontSize: '0.95rem',
+            fontWeight: '500'
+          }}>
+            No credit card required • Free forever • Anonymous
+          </p>
+        </div>
       </div>
     </div>
   );

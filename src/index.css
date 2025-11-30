@@ -8,3 +8,24 @@
     transform: rotate(360deg);
   }
 }
+/* Perfect smooth full-screen scroll snapping */
+html {
+  scroll-snap-type: y mandatory;
+  scroll-behavior: smooth;
+  overflow-y: scroll;
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  overflow-x: hidden;
+}
+
+/* Make every direct child of HomeContent a full-screen snap point */
+.snap-section {
+  min-height: 100vh;
+  min-height: 100dvh; /* better on mobile */
+  scroll-snap-align: start;
+}
