@@ -86,7 +86,7 @@ function LinePath({ scrollYProgress }) {
 
 // Styled Components
 const SectionContainer = styled.section`
-  min-height: 270vh;
+  min-height: 300vh;
   width: 100%;
   display: flex;
   flex-direction: column;
